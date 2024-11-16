@@ -49,17 +49,11 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      # Fix: Correct indentation and syntax for Azure Login
-      - name: 'Azure Login'
-        uses: azure/login@v2
-        with:
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_256E36E1379A48789F5A82E4DEFE918B }}
-
-      # Deploy to Azure Web App
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'backfood'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_256E36E1379A48789F5A82E4DEFE918B }}
           package: .
