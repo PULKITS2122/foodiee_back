@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import fs from 'fs';
 import cors from 'cors';
 
-const port = process.env.port || 3001;
+const port = process.env.PORT || 3001; // FIX: Use process.env.PORT instead of process.env.port
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -20,16 +20,23 @@ app.use(express.static('public'));
 let smartAnswer;
 let jsonData;
 
+// Load the JSON data
 try {
     const filePath = 'recipe.json';
-    const data = fs.readFileSync(filePath, 'utf8');
-    jsonData = JSON.parse(data);
-    console.log('JSON data loaded successfully');
+    if (fs.existsSync(filePath)) {
+        const data = fs.readFileSync(filePath, 'utf8');
+        jsonData = JSON.parse(data);
+        console.log('JSON data loaded successfully');
+    } else {
+        console.error(`File not found: ${filePath}`);
+        process.exit(1);
+    }
 } catch (error) {
-    console.error('Error reading the file:', error);
+    console.error('Error reading the JSON file:', error);
     process.exit(1);
 }
 
+// Socket.io connection
 io.on('connection', (socket) => {
     console.log('Client connected');
 
@@ -45,6 +52,7 @@ io.on('connection', (socket) => {
     });
 });
 
+// Helper function to find the answer
 function findAnswer(query) {
     const lowerCaseQuery = query.toLowerCase();
 
@@ -73,4 +81,5 @@ function findAnswer(query) {
     return jsonData["fallback"].response;
 }
 
+// Start the server
 server.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
